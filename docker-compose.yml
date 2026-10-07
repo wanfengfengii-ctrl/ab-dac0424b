@@ -1,0 +1,32 @@
+services:
+  api:
+    build: .
+    image: marine-geofence-classifier:latest
+    # 宿主机端口可通过环境变量配置，默认 8080：
+    #   GEOFENCE_HOST_PORT=9090 docker compose up --build
+    ports:
+      - "${GEOFENCE_HOST_PORT:-8080}:8080"
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then(r=>{if(r.status!==200)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 3s
+
+  # 一次性核对服务：API 健康后运行测试、构建核查与跨线/非法围栏端到端场景，
+  # 输出结果后自行退出，退出码报告成败（0 成功）。
+  #   docker compose up --build verify
+  verify:
+    build: .
+    image: marine-geofence-classifier:latest
+    command: ["node", "scripts/verify.js"]
+    environment:
+      - API_URL=http://api:8080
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: "no"

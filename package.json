@@ -1,0 +1,15 @@
+{
+  "name": "marine-geofence-classifier",
+  "version": "1.0.0",
+  "description": "海洋保护区点位分类 API（支持跨日期变更线的单一管制区，精确十进制判定）",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/run-tests.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
